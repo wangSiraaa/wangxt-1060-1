@@ -1,0 +1,416 @@
+@use '@/styles/variables.scss' as *;
+
+.container {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #f5f7fa 0%, #e8ecf1 100%);
+  padding-bottom: 40px;
+}
+
+.header {
+  padding: $spacing-lg;
+  background: linear-gradient(135deg, $color-primary 0%, #1976D2 100%);
+  color: white;
+}
+
+.title {
+  font-size: 40rpx;
+  font-weight: 600;
+  display: block;
+  margin-bottom: $spacing-sm;
+}
+
+.subtitle {
+  font-size: 26rpx;
+  opacity: 0.9;
+  display: block;
+}
+
+.dateRange {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin-top: $spacing-md;
+  font-size: 24rpx;
+  opacity: 0.85;
+}
+
+.content {
+  padding: $spacing-md;
+  margin-top: -$spacing-lg;
+}
+
+.overviewCard {
+  background: white;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.1);
+}
+
+.overviewTitle {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+  display: block;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $spacing-md;
+}
+
+.statCard {
+  background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  text-align: center;
+  border-left: 6rpx solid $color-primary;
+}
+
+.statCard.passRate {
+  border-left-color: $color-success;
+  background: linear-gradient(135deg, #f1f8e9 0%, #e8f5e9 100%);
+}
+
+.statCard.absentRate {
+  border-left-color: $color-warning;
+  background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+}
+
+.statCard.utilization {
+  border-left-color: $color-practical;
+  background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+}
+
+.statCard.bookingRate {
+  border-left-color: $color-coach;
+  background: linear-gradient(135deg, #e8eaf6 0%, #c5cae9 100%);
+}
+
+.statValue {
+  font-size: 44rpx;
+  font-weight: 700;
+  color: $color-text-primary;
+  display: block;
+  line-height: 1.2;
+}
+
+.statValue.highlight {
+  color: $color-success;
+}
+
+.statValue.warning {
+  color: $color-warning;
+}
+
+.statLabel {
+  font-size: 24rpx;
+  color: $color-text-secondary;
+  display: block;
+  margin-top: $spacing-xs;
+}
+
+.statUnit {
+  font-size: 24rpx;
+  font-weight: 500;
+  color: $color-text-secondary;
+  margin-left: 4rpx;
+}
+
+.section {
+  background: white;
+  border-radius: $radius-lg;
+  padding: $spacing-md;
+  margin-bottom: $spacing-md;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.06);
+}
+
+.sectionTitle {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.sectionIcon {
+  font-size: 32rpx;
+}
+
+.progressRow {
+  margin-bottom: $spacing-md;
+}
+
+.progressRow:last-child {
+  margin-bottom: 0;
+}
+
+.progressHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-xs;
+}
+
+.progressLabel {
+  font-size: 26rpx;
+  color: $color-text-primary;
+}
+
+.progressValue {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: $color-primary;
+}
+
+.progressBar {
+  height: 16rpx;
+  background: #f0f0f0;
+  border-radius: $radius-full;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, $color-primary 0%, #42A5F5 100%);
+  border-radius: $radius-full;
+  transition: width 0.5s ease;
+}
+
+.progressFill.success {
+  background: linear-gradient(90deg, $color-success 0%, #66BB6A 100%);
+}
+
+.progressFill.warning {
+  background: linear-gradient(90deg, $color-warning 0%, #FFB74D 100%);
+}
+
+.vehicleStats {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.vehicleStatRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  padding: $spacing-md;
+  background: #f8f9fa;
+  border-radius: $radius-md;
+}
+
+.vehicleIcon {
+  width: 80rpx;
+  height: 80rpx;
+  background: linear-gradient(135deg, $color-vehicle 0%, #1976D2 100%);
+  border-radius: $radius-md;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36rpx;
+  color: white;
+  flex-shrink: 0;
+}
+
+.vehicleInfo {
+  flex: 1;
+}
+
+.vehicleName {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: $color-text-primary;
+  display: block;
+}
+
+.vehiclePlate {
+  font-size: 24rpx;
+  color: $color-text-secondary;
+  display: block;
+  margin-top: 4rpx;
+}
+
+.vehicleUtil {
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.vehicleUtilValue {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: $color-primary;
+  display: block;
+}
+
+.vehicleUtilLabel {
+  font-size: 22rpx;
+  color: $color-text-secondary;
+  display: block;
+}
+
+.chartSection {
+  background: white;
+  border-radius: $radius-lg;
+  padding: $spacing-md;
+  margin-bottom: $spacing-md;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.06);
+}
+
+.barChart {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  height: 300rpx;
+  padding: $spacing-md 0;
+  border-bottom: 2rpx solid #e0e0e0;
+}
+
+.barColumn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-xs;
+  flex: 1;
+}
+
+.barFill {
+  width: 48rpx;
+  background: linear-gradient(180deg, $color-primary 0%, #64B5F6 100%);
+  border-radius: $radius-sm $radius-sm 0 0;
+  min-height: 10rpx;
+  transition: height 0.5s ease;
+  position: relative;
+}
+
+.barFill.small {
+  width: 32rpx;
+  background: linear-gradient(180deg, $color-success 0%, #81C784 100%);
+}
+
+.barValue {
+  font-size: 20rpx;
+  font-weight: 600;
+  color: $color-text-primary;
+  position: absolute;
+  top: -36rpx;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.barLabel {
+  font-size: 22rpx;
+  color: $color-text-secondary;
+}
+
+.legend {
+  display: flex;
+  justify-content: center;
+  gap: $spacing-lg;
+  margin-top: $spacing-md;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  font-size: 22rpx;
+  color: $color-text-secondary;
+}
+
+.legendDot {
+  width: 20rpx;
+  height: 20rpx;
+  border-radius: $radius-sm;
+}
+
+.legendDot.primary {
+  background: $color-primary;
+}
+
+.legendDot.success {
+  background: $color-success;
+}
+
+.summaryList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.summaryItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-sm 0;
+  border-bottom: 2rpx solid #f0f0f0;
+}
+
+.summaryItem:last-child {
+  border-bottom: none;
+}
+
+.summaryLabel {
+  font-size: 26rpx;
+  color: $color-text-secondary;
+}
+
+.summaryValue {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: $color-text-primary;
+}
+
+.summaryValue.positive {
+  color: $color-success;
+}
+
+.summaryValue.negative {
+  color: $color-warning;
+}
+
+.timeRangeTabs {
+  display: flex;
+  background: white;
+  border-radius: $radius-lg;
+  padding: $spacing-xs;
+  margin-bottom: $spacing-md;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
+}
+
+.timeRangeTab {
+  flex: 1;
+  text-align: center;
+  padding: $spacing-sm $spacing-md;
+  border-radius: $radius-md;
+  font-size: 26rpx;
+  color: $color-text-secondary;
+  transition: all 0.3s ease;
+}
+
+.timeRangeTab.active {
+  background: $color-primary;
+  color: white;
+  font-weight: 500;
+}
+
+.emptyState {
+  text-align: center;
+  padding: $spacing-xxl 0;
+  color: $color-text-secondary;
+}
+
+.emptyIcon {
+  font-size: 100rpx;
+  display: block;
+  margin-bottom: $spacing-md;
+}
+
+.emptyText {
+  font-size: 28rpx;
+  display: block;
+}

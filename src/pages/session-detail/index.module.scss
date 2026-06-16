@@ -1,0 +1,305 @@
+@use '@/styles/variables.scss' as *;
+
+.container {
+  min-height: 100vh;
+  padding-bottom: 160rpx;
+}
+
+.hero {
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-dark 100%);
+  padding: $spacing-xl $page-padding;
+  color: $color-text-white;
+}
+
+.title {
+  font-size: $font-size-xxl;
+  font-weight: $font-weight-bold;
+  margin-bottom: $spacing-sm;
+}
+
+.metaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-md;
+  margin-bottom: $spacing-lg;
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  font-size: $font-size-md;
+  opacity: 0.9;
+}
+
+.metaIcon {
+  margin-right: $spacing-xs;
+}
+
+.description {
+  font-size: $font-size-md;
+  line-height: 1.6;
+  opacity: 0.85;
+  margin-bottom: $spacing-lg;
+}
+
+.infoCards {
+  display: flex;
+  gap: $spacing-sm;
+}
+
+.infoCard {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  text-align: center;
+}
+
+.infoValue {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  margin-bottom: $spacing-xs;
+}
+
+.infoLabel {
+  font-size: $font-size-sm;
+  opacity: 0.8;
+}
+
+.content {
+  padding: $spacing-lg $page-padding;
+}
+
+.section {
+  background: $color-bg-card;
+  border-radius: $radius-md;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-lg;
+  box-shadow: $shadow-card;
+}
+
+.sectionTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+  display: flex;
+  align-items: center;
+}
+
+.sectionIcon {
+  margin-right: $spacing-sm;
+}
+
+.vehicleCard {
+  display: flex;
+  align-items: center;
+  padding: $spacing-md;
+  background: $color-bg-page;
+  border-radius: $radius-sm;
+  margin-bottom: $spacing-sm;
+}
+
+.vehicleIcon {
+  font-size: 48rpx;
+  margin-right: $spacing-md;
+}
+
+.vehicleInfo {
+  flex: 1;
+}
+
+.vehiclePlate {
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+  margin-bottom: $spacing-xs;
+}
+
+.vehicleDesc {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.vehicleStatus {
+  padding: $spacing-xs $spacing-sm;
+  border-radius: $radius-xs;
+  font-size: $font-size-xs;
+  text-align: center;
+  min-width: 100rpx;
+}
+
+.coachCard {
+  display: flex;
+  align-items: center;
+  padding: $spacing-md;
+  background: $color-bg-page;
+  border-radius: $radius-sm;
+}
+
+.coachAvatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-dark 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $color-text-white;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  margin-right: $spacing-md;
+}
+
+.coachInfo {
+  flex: 1;
+}
+
+.coachName {
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+  margin-bottom: $spacing-xs;
+}
+
+.coachQual {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.timeSlotsSection {
+  background: $color-bg-card;
+  border-radius: $radius-md;
+  padding: $spacing-lg;
+  margin: 0 $page-padding $spacing-lg;
+  box-shadow: $shadow-card;
+}
+
+.timeSlotGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $spacing-md;
+}
+
+.timeSlotItem {
+  border: 2px solid $color-border;
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  text-align: center;
+  transition: all $transition-base;
+
+  &.selected {
+    border-color: $color-primary;
+    background: rgba($color-primary, 0.05);
+  }
+
+  &.disabled {
+    opacity: 0.4;
+  }
+
+  &:not(.disabled):not(.selected):active {
+    border-color: $color-primary;
+    background: rgba($color-primary, 0.05);
+  }
+}
+
+.timeSlotTime {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-xs;
+}
+
+.timeSlotCapacity {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  margin-bottom: $spacing-sm;
+}
+
+.timeSlotStatus {
+  font-size: $font-size-xs;
+  padding: $spacing-xs $spacing-sm;
+  border-radius: $radius-xs;
+  display: inline-block;
+}
+
+.statusAvailable {
+  background: rgba($color-success, 0.1);
+  color: $color-success;
+}
+
+.statusFull {
+  background: rgba($color-error, 0.1);
+  color: $color-error;
+}
+
+.statusBooked {
+  background: rgba($color-primary, 0.1);
+  color: $color-primary;
+}
+
+.rulesAlert {
+  margin: 0 $page-spacing $spacing-lg;
+  padding: $spacing-lg;
+  background: linear-gradient(135deg, rgba($color-warning, 0.1) 0%, rgba($color-error, 0.05) 100%);
+  border-left: 4px solid $color-warning;
+  border-radius: 0 $radius-md $radius-md 0;
+  margin: 0 $page-padding $spacing-lg;
+}
+
+.rulesTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-warning;
+  margin-bottom: $spacing-sm;
+}
+
+.rulesList {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  line-height: 1.8;
+}
+
+.ruleItem {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: $spacing-xs;
+}
+
+.ruleIcon {
+  margin-right: $spacing-sm;
+}
+
+.bookButtonContainer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: $color-bg-card;
+  padding: $spacing-md $page-padding $spacing-lg;
+  box-shadow: 0 -4rpx 20rpx rgba(0, 0, 0, 0.1);
+  z-index: 100;
+}
+
+.bookBtn {
+  @include button-reset;
+  width: 100%;
+  height: $button-height-lg;
+  background: $color-primary;
+  color: $color-text-white;
+  border-radius: $radius-button;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  transition: all $transition-base;
+
+  &:disabled {
+    background: $color-text-tertiary;
+    opacity: 0.5;
+  }
+
+  &:not(:disabled):active {
+    background: $color-primary-dark;
+    transform: scale(0.98);
+  }
+}

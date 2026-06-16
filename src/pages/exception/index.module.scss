@@ -1,0 +1,299 @@
+@use '@/styles/variables.scss' as *;
+
+.container {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #f5f7fa 0%, #e8ecf1 100%);
+  padding-bottom: 40px;
+}
+
+.header {
+  padding: $spacing-lg;
+  background: linear-gradient(135deg, $color-primary 0%, #1976D2 100%);
+  color: white;
+}
+
+.title {
+  font-size: 40rpx;
+  font-weight: 600;
+  display: block;
+  margin-bottom: $spacing-sm;
+}
+
+.subtitle {
+  font-size: 26rpx;
+  opacity: 0.9;
+  display: block;
+  margin-bottom: $spacing-md;
+}
+
+.statsRow {
+  display: flex;
+  gap: $spacing-md;
+  margin-top: $spacing-md;
+}
+
+.statBox {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  text-align: center;
+}
+
+.statValue {
+  font-size: 36rpx;
+  font-weight: 600;
+  display: block;
+}
+
+.statLabel {
+  font-size: 22rpx;
+  opacity: 0.85;
+  display: block;
+  margin-top: $spacing-xs;
+}
+
+.content {
+  padding: $spacing-md;
+}
+
+.filterTabs {
+  display: flex;
+  background: white;
+  border-radius: $radius-lg;
+  padding: $spacing-xs;
+  margin-bottom: $spacing-md;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
+}
+
+.filterTab {
+  flex: 1;
+  text-align: center;
+  padding: $spacing-sm $spacing-md;
+  border-radius: $radius-md;
+  font-size: 26rpx;
+  color: $color-text-secondary;
+  transition: all 0.3s ease;
+}
+
+.filterTab.active {
+  background: $color-primary;
+  color: white;
+  font-weight: 500;
+}
+
+.typeTabs {
+  display: flex;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+  overflow-x: auto;
+  padding-bottom: $spacing-xs;
+}
+
+.typeTab {
+  flex-shrink: 0;
+  padding: $spacing-sm $spacing-md;
+  background: white;
+  border-radius: $radius-full;
+  font-size: 24rpx;
+  color: $color-text-secondary;
+  border: 2rpx solid #e0e0e0;
+}
+
+.typeTab.active {
+  background: $color-primary;
+  color: white;
+  border-color: $color-primary;
+}
+
+.exceptionList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.exceptionCard {
+  background: white;
+  border-radius: $radius-lg;
+  padding: $spacing-md;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.08);
+  border-left: 8rpx solid $color-warning;
+}
+
+.exceptionCard.handled {
+  border-left-color: $color-success;
+  opacity: 0.75;
+}
+
+.exceptionCard.typeVehicle {
+  border-left-color: $color-vehicle;
+}
+
+.exceptionCard.typeCoach {
+  border-left-color: $color-coach;
+}
+
+.exceptionCard.typeSite {
+  border-left-color: $color-warning;
+}
+
+.exceptionCard.typeOther {
+  border-left-color: $color-text-secondary;
+}
+
+.exceptionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: $spacing-sm;
+}
+
+.exceptionTitle {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: $color-text-primary;
+}
+
+.statusTag {
+  padding: $spacing-xs $spacing-sm;
+  border-radius: $radius-sm;
+  font-size: 22rpx;
+  font-weight: 500;
+}
+
+.statusTag.pending {
+  background: #FFF3E0;
+  color: #E65100;
+}
+
+.statusTag.handled {
+  background: #E8F5E9;
+  color: $color-success;
+}
+
+.typeTag {
+  display: inline-block;
+  padding: $spacing-xs $spacing-sm;
+  background: #F3E5F5;
+  color: #7B1FA2;
+  border-radius: $radius-sm;
+  font-size: 22rpx;
+  margin-bottom: $spacing-sm;
+}
+
+.typeTag.typeVehicle {
+  background: #E3F2FD;
+  color: $color-vehicle;
+}
+
+.typeTag.typeCoach {
+  background: #E8EAF6;
+  color: $color-coach;
+}
+
+.typeTag.typeSite {
+  background: #FFF8E1;
+  color: $color-warning;
+}
+
+.typeTag.typeOther {
+  background: #F5F5F5;
+  color: $color-text-secondary;
+}
+
+.infoRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-xs;
+  font-size: 26rpx;
+  color: $color-text-secondary;
+}
+
+.infoIcon {
+  font-size: 28rpx;
+}
+
+.descriptionBox {
+  background: #F5F5F5;
+  padding: $spacing-md;
+  border-radius: $radius-md;
+  margin: $spacing-sm 0;
+  font-size: 26rpx;
+  color: $color-text-primary;
+  line-height: 1.6;
+}
+
+.handleBox {
+  background: #E3F2FD;
+  padding: $spacing-md;
+  border-radius: $radius-md;
+  margin: $spacing-sm 0;
+  font-size: 26rpx;
+  color: $color-vehicle;
+  border: 2rpx dashed #BBDEFB;
+}
+
+.handleMethod {
+  font-weight: 600;
+  color: $color-primary;
+  display: block;
+  margin-bottom: $spacing-xs;
+}
+
+.handleDetail {
+  font-size: 24rpx;
+  color: $color-text-secondary;
+}
+
+.actionRow {
+  display: flex;
+  gap: $spacing-sm;
+  margin-top: $spacing-md;
+}
+
+.btn {
+  flex: 1;
+  height: 64rpx;
+  line-height: 64rpx;
+  border-radius: $radius-md;
+  font-size: 26rpx;
+  font-weight: 500;
+  border: none;
+}
+
+.btn::after {
+  border: none;
+}
+
+.btnPrimary {
+  background: $color-primary;
+  color: white;
+}
+
+.btnSecondary {
+  background: #F5F5F5;
+  color: $color-text-primary;
+}
+
+.btnWarning {
+  background: $color-warning;
+  color: white;
+}
+
+.emptyState {
+  text-align: center;
+  padding: $spacing-xxl 0;
+  color: $color-text-secondary;
+}
+
+.emptyIcon {
+  font-size: 100rpx;
+  display: block;
+  margin-bottom: $spacing-md;
+}
+
+.emptyText {
+  font-size: 28rpx;
+  display: block;
+}
