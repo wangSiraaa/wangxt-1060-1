@@ -3,7 +3,11 @@ import { View, Text, Button } from '@tarojs/components';
 import Taro, { usePullDownRefresh } from '@tarojs/taro';
 import classnames from 'classnames';
 import useTrainingStore from '@/store/useTrainingStore';
-import { RETRAINING_PRIORITY_MAP, VEHICLE_TYPE_MAP } from '@/types/training';
+import {
+  RETRAINING_PRIORITY_MAP,
+  VEHICLE_TYPE_MAP,
+  RETRAINING_REASON_MAP
+} from '@/types/training';
 import type { RetrainingPriority } from '@/types/training';
 import styles from './index.module.scss';
 
@@ -78,14 +82,7 @@ const RetrainingPage: React.FC = () => {
   };
 
   const getReasonText = (reason: string) => {
-    const reasonMap: Record<string, string> = {
-      absent: '培训缺席',
-      failed: '考核不合格',
-      equipment_fault: '设备故障中断',
-      coach_absent: '教练临时停课',
-      vehicle_fault: '车辆故障换车'
-    };
-    return reasonMap[reason] || reason;
+    return RETRAINING_REASON_MAP[reason as keyof typeof RETRAINING_REASON_MAP] || reason;
   };
 
   const stats = useMemo(() => ({
@@ -160,6 +157,20 @@ const RetrainingPage: React.FC = () => {
                   </View>
                 </View>
 
+                {item.needsManualReview && (
+                  <View style={{
+                    background: '#FFF3E0',
+                    padding: '12rpx 16rpx',
+                    borderRadius: '8rpx',
+                    marginBottom: '16rpx',
+                    border: '2rpx dashed #FF9800'
+                  }}>
+                    <Text style={{ color: '#E65100', fontSize: '26rpx', fontWeight: '500' }}>
+                      ⚠️ 连续缺席 {item.consecutiveAbsentCount || 2} 次，需人工审核后才能预约
+                    </Text>
+                  </View>
+                )}
+
                 <View className={styles.infoRow}>
                   <Text className={styles.infoIcon}>📅</Text>
                   <Text>原培训日期：{item.originalDate}</Text>
@@ -192,9 +203,19 @@ const RetrainingPage: React.FC = () => {
                   <Button
                     className={classnames(styles.btn, styles.btnSecondary)}
                     onClick={() => {
+                      let detail = `场次：${item.sessionTitle}\n原因：${getReasonText(item.reason)}\n优先级：${RETRAINING_PRIORITY_MAP[item.priority]}`;
+                      if (item.consecutiveAbsentCount) {
+                        detail += `\n连续缺席：${item.consecutiveAbsentCount} 次`;
+                      }
+                      if (item.needsManualReview) {
+                        detail += `\n审核状态：需要人工审核`;
+                      }
+                      if (item.remarks) {
+                        detail += `\n备注：${item.remarks}`;
+                      }
                       Taro.showModal({
                         title: '补训详情',
-                        content: `场次：${item.sessionTitle}\n原因：${getReasonText(item.reason)}\n优先级：${RETRAINING_PRIORITY_MAP[item.priority]}\n${item.remarks ? `备注：${item.remarks}` : ''}`,
+                        content: detail,
                         showCancel: false
                       });
                     }}
@@ -202,10 +223,20 @@ const RetrainingPage: React.FC = () => {
                     查看详情
                   </Button>
                   <Button
-                    className={classnames(styles.btn, styles.btnPrimary)}
-                    onClick={() => handleBookNow(item)}
+                    className={classnames(styles.btn, item.needsManualReview ? styles.btnSecondary : styles.btnPrimary)}
+                    onClick={() => {
+                      if (item.needsManualReview) {
+                        Taro.showModal({
+                          title: '需要人工审核',
+                          content: '您的补训申请需要管理员审核，请联系培训站负责人处理。',
+                          showCancel: false
+                        });
+                        return;
+                      }
+                      handleBookNow(item);
+                    }}
                   >
-                    立即预约
+                    {item.needsManualReview ? '待审核' : '立即预约'}
                   </Button>
                 </View>
               </View>

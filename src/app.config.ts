@@ -9,7 +9,8 @@ export default defineAppConfig({
     'pages/result-register/index',
     'pages/retraining/index',
     'pages/exception/index',
-    'pages/statistics/index'
+    'pages/statistics/index',
+    'pages/suspension-impact/index'
   ],
   window: {
     backgroundTextStyle: 'light',

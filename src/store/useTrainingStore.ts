@@ -11,7 +11,11 @@ import type {
   ExceptionRecord,
   TrainingSite,
   ResultStatus,
-  RetrainingPriority
+  RetrainingPriority,
+  RescheduleItem,
+  TrainingSuspension,
+  CoachLeaveRecord,
+  WeatherCondition
 } from '@/types/training';
 import { getMockData } from '@/data/mockData';
 import storage from '@/utils/storage';
@@ -28,6 +32,9 @@ interface TrainingState {
   retraining: RetrainingItem[];
   exceptions: ExceptionRecord[];
   sites: TrainingSite[];
+  reschedule: RescheduleItem[];
+  suspensions: TrainingSuspension[];
+  coachLeaves: CoachLeaveRecord[];
   initialized: boolean;
 
   getCurrentUser: () => User | undefined;
@@ -56,12 +63,13 @@ interface TrainingState {
   addRetraining: (
     studentId: string,
     originalBookingId: string,
-    reason: 'absent' | 'failed' | 'equipment_failure',
+    reason: 'absent' | 'failed' | 'equipment_failure' | 'weather' | 'coach_absent',
     vehicleType: string,
     priority?: RetrainingPriority
   ) => RetrainingItem;
 
   updateRetrainingPriority: (retrainId: string, priority: RetrainingPriority) => void;
+  markRetrainingForReview: (retrainId: string, needsReview: boolean) => void;
 
   assignRetrainingSession: (retrainId: string, sessionId: string) => void;
 
@@ -79,6 +87,28 @@ interface TrainingState {
   handleVehicleFaultException: (exceptionId: string) => void;
 
   handleCoachAbsentException: (exceptionId: string) => void;
+
+  handleWeatherSuspension: (
+    date: string,
+    siteId: string,
+    weatherCondition: WeatherCondition,
+    description: string
+  ) => TrainingSuspension | null;
+
+  handleCoachLeave: (
+    coachId: string,
+    startDate: string,
+    endDate: string,
+    reason: string
+  ) => { leaveRecord: CoachLeaveRecord | null; reassignedCount: number };
+
+  resolveSuspension: (suspensionId: string) => void;
+
+  getSuspensionById: (id: string) => TrainingSuspension | undefined;
+  getSuspensionImpact: (suspensionId: string) => ReturnType<typeof ScheduleEngine.getSuspensionImpact> | null;
+
+  getRescheduleList: (studentId?: string) => RescheduleItem[];
+  updateRescheduleStatus: (rescheduleId: string, status: RescheduleItem['status'], newSessionId?: string) => void;
 
   getSessionById: (id: string) => TrainingSession | undefined;
   getVehicleById: (id: string) => Vehicle | undefined;
@@ -136,6 +166,9 @@ export const useTrainingStore = create<TrainingState>()(
       retraining: [],
       exceptions: [],
       sites: [],
+      reschedule: [],
+      suspensions: [],
+      coachLeaves: [],
       initialized: false,
 
       getCurrentUser: () => {
@@ -190,6 +223,9 @@ export const useTrainingStore = create<TrainingState>()(
           retraining: [],
           exceptions: [],
           sites: [],
+          reschedule: [],
+          suspensions: [],
+          coachLeaves: [],
           initialized: false
         });
       },
@@ -211,7 +247,8 @@ export const useTrainingStore = create<TrainingState>()(
           session,
           timeSlot,
           vehicle,
-          state.bookings
+          state.bookings,
+          state.retraining
         );
 
         const failedRules = BookingRuleEngine.getFailedRules(checkResult);
@@ -340,6 +377,16 @@ export const useTrainingStore = create<TrainingState>()(
         let newRetrainingItems: RetrainingItem[] = [...state.retraining];
 
         if (status === 'absent' || status === 'failed') {
+          const allResults = [...state.results, result];
+          const absenceCheck = ScheduleEngine.checkConsecutiveAbsence(
+            booking.studentId,
+            allResults.map(r => ({
+              studentId: r.studentId,
+              status: r.status,
+              date: r.date
+            }))
+          );
+
           const retrain: RetrainingItem = {
             id: `retrain_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
             studentId: booking.studentId,
@@ -349,10 +396,13 @@ export const useTrainingStore = create<TrainingState>()(
             priority: status === 'absent' ? 'high' : 'medium',
             vehicleType: state.sessions.find(s => s.id === booking.sessionId)?.vehicleType || 'other',
             status: 'pending',
-            createTime: new Date().toISOString()
+            createTime: new Date().toISOString(),
+            needsManualReview: absenceCheck.needsManualReview,
+            consecutiveAbsentCount: absenceCheck.consecutiveCount
           };
           newRetrainingItems.push(retrain);
-          console.log('[Result] 自动加入补训名单', retrain.id);
+          console.log('[Result] 自动加入补训名单', retrain.id, 
+            absenceCheck.needsManualReview ? '需要人工审核' : '');
         }
 
         if (status === 'equipment_failure') {
@@ -528,6 +578,132 @@ export const useTrainingStore = create<TrainingState>()(
         console.log('[Exception] 处理教练缺席异常', exceptionId, result.newException.handleMethod);
       },
 
+      markRetrainingForReview: (retrainId, needsReview) => {
+        const state = get();
+        set({
+          retraining: state.retraining.map(r =>
+            r.id === retrainId ? { ...r, needsManualReview: needsReview } : r
+          )
+        });
+        console.log('[Retraining] 设置人工审核标记', retrainId, needsReview);
+      },
+
+      handleWeatherSuspension: (date, siteId, weatherCondition, description) => {
+        const state = get();
+        const site = state.sites.find(s => s.id === siteId);
+        if (!site) {
+          console.error('[Suspension] 场地不存在', siteId);
+          return null;
+        }
+
+        const result = ScheduleEngine.handleWeatherSuspension(
+          date,
+          siteId,
+          site.name,
+          weatherCondition,
+          description,
+          state.sessions,
+          state.bookings,
+          state.vehicles
+        );
+
+        set({
+          sessions: result.updatedSessions,
+          bookings: result.updatedBookings,
+          reschedule: [...state.reschedule, ...result.rescheduleItems],
+          retraining: [...state.retraining, ...result.retrainingItems],
+          suspensions: [...state.suspensions, result.suspension]
+        });
+
+        console.log('[Suspension] 天气停训处理完成', result.suspension.id, 
+          '影响场次:', result.suspension.affectedSessionIds.length,
+          '影响学员:', result.suspension.affectedStudentIds.length);
+        return result.suspension;
+      },
+
+      handleCoachLeave: (coachId, startDate, endDate, reason) => {
+        const state = get();
+        const coach = state.getCoachById(coachId);
+        if (!coach) {
+          console.error('[CoachLeave] 教练不存在', coachId);
+          return { leaveRecord: null, reassignedCount: 0 };
+        }
+
+        const result = ScheduleEngine.handleCoachLeave(
+          coachId,
+          coach.name,
+          startDate,
+          endDate,
+          reason,
+          state.sessions,
+          state.getCoaches(),
+          state.bookings,
+          state.vehicles
+        );
+
+        set({
+          sessions: result.updatedSessions,
+          bookings: result.updatedBookings,
+          reschedule: [...state.reschedule, ...result.rescheduleItems],
+          coachLeaves: [...state.coachLeaves, result.leaveRecord]
+        });
+
+        console.log('[CoachLeave] 教练请假处理完成', result.leaveRecord.id,
+          '已重新分配:', result.reassignedCount,
+          '待改期:', result.rescheduleItems.length);
+        return { leaveRecord: result.leaveRecord, reassignedCount: result.reassignedCount };
+      },
+
+      resolveSuspension: (suspensionId) => {
+        const state = get();
+        set({
+          suspensions: state.suspensions.map(s =>
+            s.id === suspensionId
+              ? { ...s, status: 'resolved' as const, resolveTime: new Date().toISOString() }
+              : s
+          )
+        });
+        console.log('[Suspension] 停训记录已解决', suspensionId);
+      },
+
+      getSuspensionById: (id) => get().suspensions.find(s => s.id === id),
+
+      getSuspensionImpact: (suspensionId) => {
+        const state = get();
+        const suspension = state.suspensions.find(s => s.id === suspensionId);
+        if (!suspension) return null;
+
+        return ScheduleEngine.getSuspensionImpact(
+          suspension,
+          state.sessions,
+          state.bookings,
+          state.vehicles,
+          state.users
+        );
+      },
+
+      getRescheduleList: (studentId) => {
+        const state = get();
+        const sid = studentId || state.currentUserId;
+        let items = state.reschedule;
+        if (studentId || state.getCurrentUser()?.role === 'student') {
+          items = items.filter(r => r.studentId === sid);
+        }
+        return ScheduleEngine.sortRescheduleByVehiclePriority(items);
+      },
+
+      updateRescheduleStatus: (rescheduleId, status, newSessionId) => {
+        const state = get();
+        set({
+          reschedule: state.reschedule.map(r =>
+            r.id === rescheduleId
+              ? { ...r, status, newSessionId: newSessionId || r.newSessionId }
+              : r
+          )
+        });
+        console.log('[Reschedule] 状态更新', rescheduleId, status);
+      },
+
       getSessionById: (id) => get().sessions.find(s => s.id === id),
       getVehicleById: (id) => get().vehicles.find(v => v.id === id),
       getCoachById: (id) => get().users.find(u => u.id === id && u.role === 'coach'),
@@ -572,7 +748,8 @@ export const useTrainingStore = create<TrainingState>()(
           session,
           timeSlot,
           vehicle,
-          state.bookings
+          state.bookings,
+          state.retraining
         );
 
         const failedRules = BookingRuleEngine.getFailedRules(checkResult);
@@ -617,6 +794,9 @@ export const useTrainingStore = create<TrainingState>()(
         retraining: state.retraining,
         exceptions: state.exceptions,
         sites: state.sites,
+        reschedule: state.reschedule,
+        suspensions: state.suspensions,
+        coachLeaves: state.coachLeaves,
         initialized: state.initialized
       })
     }

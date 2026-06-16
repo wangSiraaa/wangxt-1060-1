@@ -12,7 +12,11 @@ export type ResultStatus = 'passed' | 'failed' | 'absent' | 'equipment_failure' 
 
 export type RetrainingPriority = 'high' | 'medium' | 'low';
 
-export type ExceptionType = 'vehicle_failure' | 'coach_absent' | 'site_issue' | 'other';
+export type ExceptionType = 'vehicle_failure' | 'coach_absent' | 'site_issue' | 'weather' | 'other';
+
+export type WeatherCondition = 'sunny' | 'cloudy' | 'rain' | 'heavy_rain' | 'storm' | 'snow' | 'fog';
+
+export type RescheduleStatus = 'pending' | 'rescheduled' | 'cancelled' | 'completed';
 
 export interface User {
   id: string;
@@ -126,12 +130,69 @@ export interface RetrainingItem {
   studentId: string;
   studentName: string;
   originalBookingId: string;
-  reason: 'absent' | 'failed' | 'equipment_failure';
+  reason: 'absent' | 'failed' | 'equipment_failure' | 'weather' | 'coach_absent';
   priority: RetrainingPriority;
   vehicleType: VehicleType;
+  vehicleId?: string;
   preferredDate?: string;
   status: 'pending' | 'scheduled' | 'completed';
   assignedSessionId?: string;
+  createTime: string;
+  needsManualReview?: boolean;
+  consecutiveAbsentCount?: number;
+}
+
+export interface RescheduleItem {
+  id: string;
+  originalBookingId: string;
+  studentId: string;
+  studentName: string;
+  sessionId: string;
+  sessionTitle: string;
+  originalDate: string;
+  originalTimeSlotId: string;
+  originalTimeSlot: string;
+  originalVehicleId: string;
+  originalVehiclePlate: string;
+  originalCoachId: string;
+  originalCoachName: string;
+  vehicleType: VehicleType;
+  vehiclePriority: number;
+  reason: 'weather' | 'coach_leave' | 'vehicle_failure';
+  status: RescheduleStatus;
+  newSessionId?: string;
+  newTimeSlotId?: string;
+  createTime: string;
+}
+
+export interface TrainingSuspension {
+  id: string;
+  date: string;
+  siteId: string;
+  siteName: string;
+  reason: 'weather' | 'site_maintenance' | 'other';
+  weatherCondition?: WeatherCondition;
+  description: string;
+  affectedSessionIds: string[];
+  affectedVehicleIds: string[];
+  affectedStudentIds: string[];
+  affectedBookingIds: string[];
+  rescheduledCount: number;
+  status: 'active' | 'resolved';
+  createTime: string;
+  resolveTime?: string;
+}
+
+export interface CoachLeaveRecord {
+  id: string;
+  coachId: string;
+  coachName: string;
+  startDate: string;
+  endDate: string;
+  reason: string;
+  affectedSessionIds: string[];
+  reassignedCount: number;
+  status: 'pending' | 'in_progress' | 'completed';
   createTime: string;
 }
 
@@ -221,4 +282,43 @@ export const ROLE_MAP: Record<UserRole, string> = {
   coach: '教练',
   vehicleAdmin: '车辆管理员',
   stationManager: '培训站负责人'
+};
+
+export const WEATHER_CONDITION_MAP: Record<WeatherCondition, string> = {
+  sunny: '晴天',
+  cloudy: '多云',
+  rain: '小雨',
+  heavy_rain: '大雨',
+  storm: '暴雨',
+  snow: '下雪',
+  fog: '大雾'
+};
+
+export const EXCEPTION_TYPE_MAP: Record<ExceptionType, string> = {
+  vehicle_failure: '车辆故障',
+  coach_absent: '教练缺席',
+  site_issue: '场地问题',
+  weather: '天气原因',
+  other: '其他异常'
+};
+
+export const RESCHEDULE_STATUS_MAP: Record<RescheduleStatus, string> = {
+  pending: '待改期',
+  rescheduled: '已改期',
+  cancelled: '已取消',
+  completed: '已完成'
+};
+
+export const SUSPENSION_REASON_MAP: Record<TrainingSuspension['reason'], string> = {
+  weather: '天气停训',
+  site_maintenance: '场地维护',
+  other: '其他原因'
+};
+
+export const RETRAINING_REASON_MAP: Record<RetrainingItem['reason'], string> = {
+  absent: '培训缺席',
+  failed: '考核不合格',
+  equipment_failure: '设备故障中断',
+  weather: '天气停训',
+  coach_absent: '教练临时停课'
 };

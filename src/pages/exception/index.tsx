@@ -3,21 +3,15 @@ import { View, Text, Button } from '@tarojs/components';
 import Taro, { usePullDownRefresh } from '@tarojs/taro';
 import classnames from 'classnames';
 import useTrainingStore from '@/store/useTrainingStore';
-import { VEHICLE_TYPE_MAP } from '@/types/training';
+import { VEHICLE_TYPE_MAP, EXCEPTION_TYPE_MAP } from '@/types/training';
 import type { ExceptionType, ExceptionRecord } from '@/types/training';
 import styles from './index.module.scss';
-
-const EXCEPTION_TYPE_MAP: Record<ExceptionType, string> = {
-  vehicle_failure: '车辆故障',
-  coach_absent: '教练缺席',
-  site_issue: '场地问题',
-  other: '其他异常'
-};
 
 const EXCEPTION_TYPE_CLASS: Record<ExceptionType, string> = {
   vehicle_failure: 'typeVehicle',
   coach_absent: 'typeCoach',
   site_issue: 'typeSite',
+  weather: 'typeSite',
   other: 'typeOther'
 };
 
@@ -26,7 +20,6 @@ const ExceptionPage: React.FC = () => {
   const [selectedStatus, setSelectedStatus] = useState<'all' | 'pending' | 'handled'>('all');
   const [selectedType, setSelectedType] = useState<ExceptionType | 'all'>('all');
   const [refreshing, setRefreshing] = useState(false);
-
   usePullDownRefresh(() => {
     setRefreshing(true);
     setTimeout(() => {
@@ -61,6 +54,7 @@ const ExceptionPage: React.FC = () => {
 
   const typeTabs = [
     { key: 'all' as const, label: '全部类型' },
+    { key: 'weather' as const, label: '天气停训' },
     { key: 'vehicle_failure' as const, label: '车辆故障' },
     { key: 'coach_absent' as const, label: '教练缺席' },
     { key: 'site_issue' as const, label: '场地问题' },
@@ -72,7 +66,19 @@ const ExceptionPage: React.FC = () => {
   };
 
   const handleException = (exception: ExceptionRecord) => {
-    if (exception.type === 'vehicle_failure') {
+    if (exception.type === 'weather') {
+      Taro.showModal({
+        title: '天气停训影响分析',
+        content: '点击确定查看本次天气停训影响的车辆、学员和后续场次。',
+        success: (res) => {
+          if (res.confirm) {
+            Taro.navigateTo({
+              url: `/pages/suspension-impact/index?suspensionId=${exception.id}`
+            });
+          }
+        }
+      });
+    } else if (exception.type === 'vehicle_failure') {
       Taro.showModal({
         title: '处理车辆故障',
         content: '系统将自动查找可用车辆进行替换。无法替换时，已预约学员将自动转入补训名单。是否继续？',
@@ -166,6 +172,28 @@ const ExceptionPage: React.FC = () => {
             <Text className={styles.statValue}>{stats.handled}</Text>
             <Text className={styles.statLabel}>已处理</Text>
           </View>
+        </View>
+        <View style={{
+          marginTop: '24rpx',
+          display: 'flex',
+          gap: '16rpx'
+        }}>
+          <Button
+            style={{
+              flex: 1,
+              height: '72rpx',
+              lineHeight: '72rpx',
+              borderRadius: '16rpx',
+              fontSize: '26rpx',
+              background: 'rgba(255,255,255,0.25)',
+              color: 'white',
+              border: 'none',
+              fontWeight: '500'
+            }}
+            onClick={() => Taro.navigateTo({ url: '/pages/suspension-impact/index' })}
+          >
+            📊 停训影响分析
+          </Button>
         </View>
       </View>
 
@@ -286,13 +314,18 @@ const ExceptionPage: React.FC = () => {
                     查看详情
                   </Button>
                   {!exception.handled && (
-                    exception.type === 'vehicle_failure' || exception.type === 'coach_absent'
+                    exception.type === 'vehicle_failure' ||
+                    exception.type === 'coach_absent' ||
+                    exception.type === 'weather'
                   ) && (
                     <Button
-                      className={classnames(styles.btn, styles.btnWarning)}
+                      className={classnames(
+                        styles.btn,
+                        exception.type === 'weather' ? styles.btnPrimary : styles.btnWarning
+                      )}
                       onClick={() => handleException(exception)}
                     >
-                      立即处理
+                      {exception.type === 'weather' ? '查看影响' : '立即处理'}
                     </Button>
                   )}
                 </View>

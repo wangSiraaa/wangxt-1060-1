@@ -13,17 +13,19 @@ export class BookingRuleEngine {
     session: TrainingSession,
     timeSlot: TimeSlot,
     vehicle: Vehicle,
-    existingBookings: Booking[]
+    existingBookings: Booking[],
+    retrainingItems?: { studentId: string; needsManualReview?: boolean; status?: string }[]
   ): RuleCheckResult[] {
     const results: RuleCheckResult[] = [];
 
     results.push(this.checkTheoryPassed(student));
     results.push(this.checkAbsentLimit(student));
-    results.push(this.checkRetrainingStatus(student, session));
+    results.push(this.checkRetrainingStatus(student, session, retrainingItems));
     results.push(this.checkVehicleAvailability(timeSlot, vehicle));
     results.push(this.checkTimeSlotConflict(student, timeSlot, existingBookings));
     results.push(this.checkTimeSlotCapacity(timeSlot));
     results.push(this.checkVehicleTypeMatch(student, session));
+    results.push(this.checkConsecutiveAbsentReview(student, retrainingItems));
 
     return results;
   }
@@ -50,13 +52,31 @@ export class BookingRuleEngine {
     };
   }
 
-  static checkRetrainingStatus(student: User, session: TrainingSession): RuleCheckResult {
+  static checkRetrainingStatus(
+    student: User,
+    session: TrainingSession,
+    retrainingItems?: { studentId: string; needsManualReview?: boolean; status?: string }[]
+  ): RuleCheckResult {
     const hasRetraining = student.retrainingCount && student.retrainingCount > 0;
     const isPractical = session.type === 'practical';
-    const passed = !hasRetraining || isPractical;
+    
+    let needsReview = false;
+    if (retrainingItems) {
+      needsReview = retrainingItems.some(
+        r => r.studentId === student.id && r.needsManualReview && r.status !== 'completed'
+      );
+    }
+    
+    const passed = (!hasRetraining || isPractical) && !needsReview;
+    let message = '补训状态正常';
+    if (needsReview) {
+      message = '存在需要人工审核的补训记录，请先联系管理员处理';
+    } else if (hasRetraining && !isPractical) {
+      message = '存在未完成的补训，请先完成补训';
+    }
     return {
       passed,
-      message: passed ? '补训状态正常' : '存在未完成的补训，请先完成补训',
+      message,
       code: 'RETRAINING_PENDING'
     };
   }
@@ -111,6 +131,28 @@ export class BookingRuleEngine {
       passed: true,
       message: `培训车型：${session.vehicleTypeName}`,
       code: 'VEHICLE_TYPE_CHECK'
+    };
+  }
+
+  static checkConsecutiveAbsentReview(
+    student: User,
+    retrainingItems?: { studentId: string; needsManualReview?: boolean; status?: string }[]
+  ): RuleCheckResult {
+    if (!retrainingItems) {
+      return { passed: true, message: '缺席审核状态正常', code: 'ABSENT_REVIEW_OK' };
+    }
+
+    const pendingReviewItems = retrainingItems.filter(
+      r => r.studentId === student.id && r.needsManualReview && r.status !== 'completed'
+    );
+
+    const passed = pendingReviewItems.length === 0;
+    return {
+      passed,
+      message: passed
+        ? '缺席审核状态正常'
+        : `您有 ${pendingReviewItems.length} 条补训记录需要人工审核，请先联系管理员`,
+      code: 'CONSECUTIVE_ABSENT_REVIEW'
     };
   }
 
