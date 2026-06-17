@@ -38,8 +38,19 @@ interface TrainingState {
   initialized: boolean;
 
   getCurrentUser: () => User | undefined;
+  getUsers: () => User[];
   getCoaches: () => User[];
   getStudents: () => User[];
+  getVehicles: () => Vehicle[];
+  getSessions: () => TrainingSession[];
+  getBookings: () => Booking[];
+  getResults: () => TrainingResult[];
+  getExceptions: () => ExceptionRecord[];
+  getMyResults: (studentId?: string) => TrainingResult[];
+
+  switchCurrentUser: (userId: string) => void;
+  exportData: () => any;
+  importDemoData: () => void;
 
   initializeData: () => void;
   clearAllData: () => void;
@@ -176,12 +187,69 @@ export const useTrainingStore = create<TrainingState>()(
         return users.find(u => u.id === currentUserId);
       },
 
+      getUsers: () => get().users,
+
       getCoaches: () => {
         return get().users.filter(u => u.role === 'coach');
       },
 
       getStudents: () => {
         return get().users.filter(u => u.role === 'student');
+      },
+
+      getVehicles: () => get().vehicles,
+
+      getSessions: () => get().sessions,
+
+      getBookings: () => get().bookings,
+
+      getResults: () => get().results,
+
+      getExceptions: () => get().exceptions,
+
+      getMyResults: (studentId) => {
+        const sid = studentId || get().currentUserId;
+        return get().results.filter(r => r.studentId === sid);
+      },
+
+      switchCurrentUser: (userId) => {
+        set({ currentUserId: userId });
+        console.log('[Store] 切换当前用户', userId);
+      },
+
+      exportData: () => {
+        const state = get();
+        return {
+          currentUserId: state.currentUserId,
+          users: state.users,
+          vehicles: state.vehicles,
+          sessions: state.sessions,
+          bookings: state.bookings,
+          results: state.results,
+          retraining: state.retraining,
+          exceptions: state.exceptions,
+          sites: state.sites,
+          reschedule: state.reschedule,
+          suspensions: state.suspensions,
+          coachLeaves: state.coachLeaves
+        };
+      },
+
+      importDemoData: () => {
+        const mockData = getMockData();
+        console.log('[Store] 导入演示数据');
+        set({
+          currentUserId: mockData.currentUserId,
+          users: mockData.users,
+          vehicles: mockData.vehicles,
+          sessions: mockData.sessions,
+          bookings: mockData.bookings,
+          results: mockData.results,
+          retraining: mockData.retraining,
+          exceptions: mockData.exceptions,
+          sites: mockData.sites,
+          initialized: true
+        });
       },
 
       initializeData: () => {

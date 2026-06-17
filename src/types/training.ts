@@ -27,6 +27,7 @@ export interface User {
   avatar?: string;
   stationId: string;
   coachQualification?: string[];
+  qualifications?: string[];
   theoryPassed?: boolean;
   theoryScore?: number;
   absentCount?: number;
@@ -38,7 +39,9 @@ export interface Vehicle {
   plateNumber: string;
   type: VehicleType;
   typeName: string;
+  brand?: string;
   model: string;
+  year?: number | string;
   status: 'available' | 'in_use' | 'maintenance' | 'fault';
   stationId: string;
   currentSessionId?: string;
@@ -85,6 +88,7 @@ export interface TrainingSession {
   status: SessionStatus;
   requirements: string[];
   createTime: string;
+  description?: string;
 }
 
 export interface Booking {
@@ -113,16 +117,21 @@ export interface TrainingResult {
   studentId: string;
   studentName: string;
   sessionId: string;
+  sessionTitle?: string;
   timeSlotId: string;
+  timeSlot?: string;
   coachId: string;
   coachName: string;
   vehicleId: string;
+  vehiclePlate?: string;
+  vehicleType?: VehicleType;
   date: string;
   status: ResultStatus;
   score?: number;
   remarks?: string;
   equipmentFault?: string;
   createTime: string;
+  createdAt?: string;
 }
 
 export interface RetrainingItem {
@@ -130,6 +139,8 @@ export interface RetrainingItem {
   studentId: string;
   studentName: string;
   originalBookingId: string;
+  sessionTitle?: string;
+  originalDate?: string;
   reason: 'absent' | 'failed' | 'equipment_failure' | 'weather' | 'coach_absent';
   priority: RetrainingPriority;
   vehicleType: VehicleType;
@@ -138,6 +149,9 @@ export interface RetrainingItem {
   status: 'pending' | 'scheduled' | 'completed';
   assignedSessionId?: string;
   createTime: string;
+  createdAt?: string;
+  expiresAt?: string;
+  remarks?: string;
   needsManualReview?: boolean;
   consecutiveAbsentCount?: number;
 }
@@ -205,6 +219,7 @@ export interface ExceptionRecord {
   coachId?: string;
   description: string;
   handled: boolean;
+  status?: 'pending' | 'handled';
   handleMethod?: string;
   newVehicleId?: string;
   newCoachId?: string;

@@ -27,8 +27,8 @@ const BookingConfirmPage: React.FC = () => {
   const [checkResults, setCheckResults] = useState<RuleCheckResult[]>([]);
 
   const currentUser = getCurrentUser();
-  const vehicles = getVehicles();
-  const users = getUsers();
+  const vehicles = getVehicles() || [];
+  const users = getUsers() || [];
 
   useEffect(() => {
     if (sessionId) {

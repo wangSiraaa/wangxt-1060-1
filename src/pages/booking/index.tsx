@@ -25,7 +25,7 @@ const BookingPage: React.FC = () => {
     }, 1000);
   });
 
-  const allBookings = getMyBookings();
+  const allBookings = getMyBookings() || [];
 
   const filteredBookings = useMemo(() => {
     const statusMap: Record<number, BookingStatus[]> = {

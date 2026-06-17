@@ -9,31 +9,39 @@ import styles from './index.module.scss';
 
 const SessionDetailPage: React.FC = () => {
   const router = useRouter();
-  const sessionId = router.params.sessionId as string;
+  const sessionId = (router.params.sessionId || router.params.id) as string;
 
   const {
     getSessionById,
     getVehicles,
     getUsers,
+    getCoaches,
     getCurrentUser,
     canBookSession,
-    getMyBookings
+    getMyBookings,
+    initializeData
   } = useTrainingStore();
 
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null);
   const [session, setSession] = useState<TrainingSession | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    initializeData();
+  }, [initializeData]);
 
   useEffect(() => {
     if (sessionId) {
       const s = getSessionById(sessionId);
       setSession(s || null);
+      setLoading(false);
     }
   }, [sessionId, getSessionById]);
 
   const currentUser = getCurrentUser();
-  const vehicles = getVehicles();
-  const coaches = getUsers().filter(u => u.role === 'coach');
-  const myBookings = getMyBookings();
+  const vehicles = getVehicles() || [];
+  const coaches = getCoaches() || [];
+  const myBookings = getMyBookings() || [];
 
   const sessionVehicles = useMemo(() => {
     if (!session) return [];
@@ -95,9 +103,17 @@ const SessionDetailPage: React.FC = () => {
     });
   };
 
+  if (loading) {
+    return (
+      <View className={styles.container} style={{ padding: '48rpx', textAlign: 'center' }}>
+        <Text>加载中...</Text>
+      </View>
+    );
+  }
+
   if (!session) {
     return (
-      <View className={styles.container} style={{ padding: $spacing-xl, textAlign: 'center' }}>
+      <View className={styles.container} style={{ padding: '48rpx', textAlign: 'center' }}>
         <Text>场次不存在</Text>
       </View>
     );
@@ -122,7 +138,9 @@ const SessionDetailPage: React.FC = () => {
           </View>
         </View>
 
-        <Text className={styles.description}>{session.description}</Text>
+        {session.description && (
+          <Text className={styles.description}>{session.description}</Text>
+        )}
 
         <View className={styles.infoCards}>
           <View className={styles.infoCard}>
@@ -146,25 +164,32 @@ const SessionDetailPage: React.FC = () => {
             <Text className={styles.sectionIcon}>🚜</Text>
             培训车辆
           </Text>
-          {sessionVehicles.map(vehicle => (
-            <View key={vehicle.id} className={styles.vehicleCard}>
-              <Text className={styles.vehicleIcon}>🚜</Text>
-              <View className={styles.vehicleInfo}>
-                <Text className={styles.vehiclePlate}>{vehicle.plateNumber}</Text>
-                <Text className={styles.vehicleDesc}>
-                  {vehicle.brand} {vehicle.model} · {vehicle.year}年
-                </Text>
+          {sessionVehicles.length > 0 ? (
+            sessionVehicles.map(vehicle => (
+              <View key={vehicle.id} className={styles.vehicleCard}>
+                <Text className={styles.vehicleIcon}>🚜</Text>
+                <View className={styles.vehicleInfo}>
+                  <Text className={styles.vehiclePlate}>{vehicle.plateNumber}</Text>
+                  <Text className={styles.vehicleDesc}>
+                    {vehicle.brand || vehicle.typeName || ''} {vehicle.model || ''}
+                    {vehicle.year ? ` · ${vehicle.year}年` : ''}
+                  </Text>
+                </View>
+                <View
+                  className={classnames(
+                    styles.vehicleStatus,
+                    vehicle.status === 'available' ? 'tagSuccess' : 'tagError'
+                  )}
+                >
+                  {vehicle.status === 'available' ? '可用' : vehicle.status === 'in_use' ? '使用中' : '不可用'}
+                </View>
               </View>
-              <View
-                className={classnames(
-                  styles.vehicleStatus,
-                  vehicle.status === 'available' ? 'tagSuccess' : 'tagError'
-                )}
-              >
-                {vehicle.status === 'available' ? '可用' : vehicle.status === 'in_use' ? '使用中' : '不可用'}
-              </View>
+            ))
+          ) : (
+            <View style={{ padding: '24rpx', textAlign: 'center', color: '#90A4AE' }}>
+              <Text>暂无车辆信息</Text>
             </View>
-          ))}
+          )}
         </View>
 
         <View className={styles.section}>
@@ -172,19 +197,28 @@ const SessionDetailPage: React.FC = () => {
             <Text className={styles.sectionIcon}>👨‍🏫</Text>
             培训教练
           </Text>
-          {sessionCoaches.map(coach => (
-            <View key={coach.id} className={styles.coachCard}>
-              <View className={styles.coachAvatar}>
-                {coach.name?.charAt(0)}
-              </View>
-              <View className={styles.coachInfo}>
-                <Text className={styles.coachName}>{coach.name}</Text>
-                <Text className={styles.coachQual}>
-                  资质：{coach.qualifications?.map(q => VEHICLE_TYPE_MAP[q]).join('、') || '无'}
-                </Text>
-              </View>
+          {sessionCoaches.length > 0 ? (
+            sessionCoaches.map(coach => {
+              const quals = coach.qualifications || coach.coachQualification || [];
+              return (
+                <View key={coach.id} className={styles.coachCard}>
+                  <View className={styles.coachAvatar}>
+                    {coach.name?.charAt(0) || '教'}
+                  </View>
+                  <View className={styles.coachInfo}>
+                    <Text className={styles.coachName}>{coach.name || '未知教练'}</Text>
+                    <Text className={styles.coachQual}>
+                      资质：{quals.map((q: string) => VEHICLE_TYPE_MAP[q as keyof typeof VEHICLE_TYPE_MAP] || q).join('、') || '无'}
+                    </Text>
+                  </View>
+                </View>
+              );
+            })
+          ) : (
+            <View style={{ padding: '24rpx', textAlign: 'center', color: '#90A4AE' }}>
+              <Text>暂无教练信息</Text>
             </View>
-          ))}
+          )}
         </View>
       </View>
 

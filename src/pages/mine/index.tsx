@@ -20,11 +20,11 @@ const MinePage: React.FC = () => {
   } = useTrainingStore();
 
   const currentUser = getCurrentUser();
-  const myBookings = getMyBookings();
-  const myRetraining = getMyRetraining();
-  const vehicles = getVehicles();
-  const sessions = getSessions();
-  const exceptions = getExceptions();
+  const myBookings = getMyBookings() || [];
+  const myRetraining = getMyRetraining() || [];
+  const vehicles = getVehicles() || [];
+  const sessions = getSessions() || [];
+  const exceptions = getExceptions() || [];
 
   const stats = useMemo(() => ({
     total: myBookings.length,
@@ -63,8 +63,8 @@ const MinePage: React.FC = () => {
           icon: '🚨',
           iconBg: '#FFEBEE',
           title: '异常处理',
-          desc: `待处理 ${exceptions.filter(e => e.status === 'pending').length} 项`,
-          badge: exceptions.filter(e => e.status === 'pending').length,
+          desc: `待处理 ${exceptions.filter(e => (e.status || (e.handled ? 'handled' : 'pending')) === 'pending').length} 项`,
+          badge: exceptions.filter(e => (e.status || (e.handled ? 'handled' : 'pending')) === 'pending').length,
           action: () => Taro.navigateTo({ url: '/pages/exception/index' })
         }
       ]
@@ -177,7 +177,7 @@ const MinePage: React.FC = () => {
           )}
           <Text className={styles.profileMeta}>
             {currentUser?.role === 'student' && `缺席次数：${currentUser.absentCount || 0}次`}
-            {currentUser?.role === 'coach' && `资质：${currentUser.qualifications?.join('、') || '无'}`}
+            {currentUser?.role === 'coach' && `资质：${(currentUser.qualifications || currentUser.coachQualification || []) as any || '无'}`}
           </Text>
         </View>
       </View>

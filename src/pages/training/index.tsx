@@ -20,7 +20,7 @@ const TrainingPage: React.FC = () => {
     }, 1000);
   });
 
-  const allResults = getMyResults();
+  const allResults = getMyResults() || [];
 
   const filteredResults = useMemo(() => {
     return allResults.sort((a, b) => 
@@ -128,7 +128,7 @@ const TrainingPage: React.FC = () => {
           filteredResults.map(result => (
             <View key={result.id} className={styles.recordItem}>
               <View className={styles.recordHeader}>
-                <Text className={styles.recordTitle}>{result.sessionTitle}</Text>
+                <Text className={styles.recordTitle}>{result.sessionTitle || '培训记录'}</Text>
                 <View
                   className={classnames('tag', 
                     result.status === 'passed' ? 'tagSuccess' : 
@@ -141,11 +141,11 @@ const TrainingPage: React.FC = () => {
               <View className={styles.recordContent}>
                 <View className={styles.recordRow}>
                   <Text className={styles.recordIcon}>📅</Text>
-                  <Text>{result.date} {result.timeSlot}</Text>
+                  <Text>{result.date} {result.timeSlot || ''}</Text>
                 </View>
                 <View className={styles.recordRow}>
                   <Text className={styles.recordIcon}>🚜</Text>
-                  <Text>{result.vehiclePlate} · {result.vehicleType ? VEHICLE_TYPE_MAP[result.vehicleType] : ''}</Text>
+                  <Text>{result.vehiclePlate || ''} {result.vehicleType ? `· ${VEHICLE_TYPE_MAP[result.vehicleType]}` : ''}</Text>
                 </View>
                 <View className={styles.recordRow}>
                   <Text className={styles.recordIcon}>👨‍🏫</Text>
@@ -178,7 +178,7 @@ const TrainingPage: React.FC = () => {
                   )}
                 </View>
                 <Text className={styles.recordDate}>
-                  登记于 {new Date(result.createdAt).toLocaleDateString()}
+                  登记于 {new Date(result.createdAt || result.createTime).toLocaleDateString()}
                 </Text>
               </View>
             </View>

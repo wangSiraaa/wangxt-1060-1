@@ -37,9 +37,9 @@ const HomePage: React.FC = () => {
   });
 
   const currentUser = getCurrentUser();
-  const sessions = getAvailableSessions(selectedType === 'all' ? undefined : selectedType);
-  const myBookings = getMyBookings();
-  const myRetraining = getMyRetraining();
+  const sessions = getAvailableSessions(selectedType === 'all' ? undefined : selectedType) || [];
+  const myBookings = getMyBookings() || [];
+  const myRetraining = getMyRetraining() || [];
 
   const filteredSessions = useMemo(() => {
     return sessions;

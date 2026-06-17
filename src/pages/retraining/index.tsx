@@ -24,8 +24,8 @@ const RetrainingPage: React.FC = () => {
     }, 1000);
   });
 
-  const retrainingItems = getMyRetraining();
-  const availableSessions = getAvailableSessions();
+  const retrainingItems = getMyRetraining() || [];
+  const availableSessions = getAvailableSessions() || [];
 
   const filteredItems = useMemo(() => {
     let items = [...retrainingItems];
@@ -151,7 +151,7 @@ const RetrainingPage: React.FC = () => {
             filteredItems.map(item => (
               <View key={item.id} className={styles.retrainingCard}>
                 <View className={styles.retrainingHeader}>
-                  <Text className={styles.retrainingTitle}>{item.sessionTitle}</Text>
+                  <Text className={styles.retrainingTitle}>{item.sessionTitle || '补训安排'}</Text>
                   <View className={classnames(styles.priorityTag, getPriorityClass(item.priority))}>
                     {RETRAINING_PRIORITY_MAP[item.priority]}
                   </View>
@@ -173,7 +173,7 @@ const RetrainingPage: React.FC = () => {
 
                 <View className={styles.infoRow}>
                   <Text className={styles.infoIcon}>📅</Text>
-                  <Text>原培训日期：{item.originalDate}</Text>
+                  <Text>原培训日期：{item.originalDate || '-'}</Text>
                 </View>
                 <View className={styles.infoRow}>
                   <Text className={styles.infoIcon}>🚜</Text>
@@ -181,7 +181,7 @@ const RetrainingPage: React.FC = () => {
                 </View>
                 <View className={styles.infoRow}>
                   <Text className={styles.infoIcon}>⏰</Text>
-                  <Text>创建时间：{new Date(item.createdAt).toLocaleDateString()}</Text>
+                  <Text>创建时间：{new Date(item.createdAt || item.createTime).toLocaleDateString()}</Text>
                 </View>
                 {item.expiresAt && (
                   <View className={styles.infoRow}>
@@ -203,7 +203,7 @@ const RetrainingPage: React.FC = () => {
                   <Button
                     className={classnames(styles.btn, styles.btnSecondary)}
                     onClick={() => {
-                      let detail = `场次：${item.sessionTitle}\n原因：${getReasonText(item.reason)}\n优先级：${RETRAINING_PRIORITY_MAP[item.priority]}`;
+                      let detail = `场次：${item.sessionTitle || '补训安排'}\n原因：${getReasonText(item.reason)}\n优先级：${RETRAINING_PRIORITY_MAP[item.priority]}`;
                       if (item.consecutiveAbsentCount) {
                         detail += `\n连续缺席：${item.consecutiveAbsentCount} 次`;
                       }

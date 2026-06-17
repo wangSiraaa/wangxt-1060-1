@@ -7,7 +7,7 @@ import { VEHICLE_TYPE_MAP } from '@/types/training';
 import styles from './index.module.scss';
 
 const StatisticsPage: React.FC = () => {
-  const { getStatistics, sessions, bookings, vehicles, results } = useTrainingStore();
+  const { getStatistics, getSessions, getBookings, getVehicles, getResults } = useTrainingStore();
   const [timeRange, setTimeRange] = useState<'week' | 'month' | 'all'>('all');
   const [refreshing, setRefreshing] = useState(false);
 
@@ -18,6 +18,11 @@ const StatisticsPage: React.FC = () => {
       Taro.stopPullDownRefresh();
     }, 1000);
   });
+
+  const sessions = getSessions() || [];
+  const bookings = getBookings() || [];
+  const vehicles = getVehicles() || [];
+  const results = getResults() || [];
 
   const dateRange = useMemo(() => {
     const now = new Date();

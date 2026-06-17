@@ -16,7 +16,7 @@ const EXCEPTION_TYPE_CLASS: Record<ExceptionType, string> = {
 };
 
 const ExceptionPage: React.FC = () => {
-  const { exceptions, handleVehicleFaultException, handleCoachAbsentException, getSessionById, getVehicleById, getCoachById } = useTrainingStore();
+  const { getExceptions, handleVehicleFaultException, handleCoachAbsentException, getSessionById, getVehicleById, getCoachById } = useTrainingStore();
   const [selectedStatus, setSelectedStatus] = useState<'all' | 'pending' | 'handled'>('all');
   const [selectedType, setSelectedType] = useState<ExceptionType | 'all'>('all');
   const [refreshing, setRefreshing] = useState(false);
@@ -27,6 +27,8 @@ const ExceptionPage: React.FC = () => {
       Taro.stopPullDownRefresh();
     }, 1000);
   });
+
+  const exceptions = getExceptions() || [];
 
   const filteredExceptions = useMemo(() => {
     let items = [...exceptions];

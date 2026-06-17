@@ -23,7 +23,7 @@ const SessionCard: React.FC<SessionCardProps> = ({
 
   const handleClick = () => {
     Taro.navigateTo({
-      url: `/pages/session-detail/index?id=${session.id}`
+      url: `/pages/session-detail/index?sessionId=${session.id}`
     });
   };
 
@@ -32,7 +32,7 @@ const SessionCard: React.FC<SessionCardProps> = ({
     if (!isAvailable) return;
     onBook?.(session);
     Taro.navigateTo({
-      url: `/pages/session-detail/index?id=${session.id}`
+      url: `/pages/session-detail/index?sessionId=${session.id}`
     });
   };
 
